@@ -1,14 +1,16 @@
-# ESP32 Sleep Systems: From Timer to Hardware Watchdog
+# ESP32 Sleep Systems: From Timer to Hardware-Based Periodic Wake Generator
 
 ## 1. Overview
 
-This project explores different approaches to implementing periodic wake-up behavior on the ESP32, progressing from software-based methods to a fully hardware-driven solution. It is particularly useful for monitoring systems that do not need to run continuously, but instead wake up at roughly defined intervals to perform tasks and then return to sleep, significantly reducing power consumption and improving overall efficiency. An LED is also incorporated into the design as a visual indicator, helping detect and verify the wake-up events and system behavior.
+This project explores different approaches to implementing periodic wake-up behavior on the ESP32, progressing from software-based methods to a hardware-assisted periodic wake generation system.
+
+The final stage uses an RC circuit and transistor to generate approximate time delays externally, allowing the ESP32 to wake without relying on internal timers. This demonstrates how analog hardware can be used to drive periodic behavior in embedded systems.
 
 The project is structured in three stages:
 
 - Stage 1 — Timer-based Light Sleep (CPU halted, peripherals mostly active, brownout detector enabled)
 - Stage 2 — External Wake using Button (Deep Sleep with RTC domain active, most peripherals off, brownout detector enabled)
-- Stage 3 — Hardware Watchdog using RC Circuit and Transistor (Deepest Deep Sleep with minimal RTC activity, most subsystems off, brownout detector disabled)
+- Stage 3 — Hardware timer using RC Circuit and Transistor (Deepest Deep Sleep with minimal RTC activity, most subsystems off, brownout detector disabled)
 
 The goal of the stage based approach is to understand how embedded systems transition from **software control to hardware-assisted autonomy**.
 
@@ -154,7 +156,7 @@ esp_sleep_enable_ext0_wakeup(GPIO_NUM_33, 0);
 
 ---
 
-## 5. Stage 3 — Hardware Watchdog (RC + Transistor)
+## 5. Stage 3 — Hardware Timer (RC + Transistor)
 
 ### Objective
 
@@ -163,6 +165,8 @@ Create a fully autonomous hardware-driven wake-up system.
 ### Concept
 
 A capacitor charges slowly through a resistor. When the voltage reaches a threshold (~0.7V), a transistor turns ON and pulls the wake pin LOW.
+
+This creates a hardware-based periodic wake mechanism where the timing is determined by the RC circuit instead of software timers.
 
 ---
 
@@ -179,6 +183,12 @@ A capacitor charges slowly through a resistor. When the voltage reaches a thresh
 ![Stage 3 Circuit Diagram](./assets/stage3.png)
 
 ---
+
+### Nature of the System
+
+This design functions as a periodic wake generator rather than a watchdog. The wake events are driven purely by the RC timing circuit and occur regardless of the internal state of the ESP32.
+
+Unlike a watchdog system, this implementation does not monitor software execution or detect failures. It simply provides approximate timing using external hardware.
 
 ### Working Cycle
 
@@ -200,6 +210,7 @@ A capacitor charges slowly through a resistor. When the voltage reaches a thresh
 - RC timing is **approximate**, not precise
 - Transistor switching is **gradual, not instantaneous**
 - System combines **analog behavior with digital control**
+- The wake-up behavior is independent of program execution and is solely determined by the RC timing characteristics.
 
 ---
 
@@ -315,9 +326,8 @@ This project demonstrates the transition from:
 
 - Software-controlled timing
   to
-- Hardware-assisted autonomous behavior
-
-It highlights the interaction between:
+- Hardware-assisted periodic operation using external analog timing
+  It highlights the interaction between:
 
 - Analog circuits
 - Digital logic
