@@ -176,7 +176,7 @@ A capacitor charges slowly through a resistor. When the voltage reaches a thresh
 
 ### Circuit Diagram
 
-![Stage 3 Circuit Diagram](./assets/circuit_diagram.png)
+![Stage 3 Circuit Diagram](./assets/stage3.png)
 
 ---
 
